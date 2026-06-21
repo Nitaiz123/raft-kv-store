@@ -1,0 +1,45 @@
+version: "3.9"
+
+# Spin up a 3-node Raft KV cluster locally.
+# Usage: docker-compose up --build
+#
+# API endpoints:
+#   Node 0: http://localhost:8080
+#   Node 1: http://localhost:8081
+#   Node 2: http://localhost:8082
+#
+# Example:
+#   curl -X PUT http://localhost:8080/kv/hello \
+#        -H 'Content-Type: application/json' \
+#        -d '{"value":"world","request_id":"req-1","client_id":1}'
+#   curl http://localhost:8080/kv/hello
+#   curl http://localhost:8080/status
+
+services:
+  node0:
+    build: .
+    command: ["--id=0", "--http=:8080", "--cluster=3"]
+    ports:
+      - "8080:8080"
+    networks:
+      - raft-net
+
+  node1:
+    build: .
+    command: ["--id=1", "--http=:8081", "--cluster=3"]
+    ports:
+      - "8081:8081"
+    networks:
+      - raft-net
+
+  node2:
+    build: .
+    command: ["--id=2", "--http=:8082", "--cluster=3"]
+    ports:
+      - "8082:8082"
+    networks:
+      - raft-net
+
+networks:
+  raft-net:
+    driver: bridge
